@@ -1,4 +1,15 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/docapp'
+function getBaseUrl(): string {
+  let url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/docapp'
+  // Remove any trailing slashes
+  url = url.replace(/\/+$/, '')
+  // If only root domain was provided without /api/docapp, auto-append /api/docapp
+  if (!url.includes('/api/docapp') && !url.includes('/api/')) {
+    url = `${url}/api/docapp`
+  }
+  return url
+}
+
+const BASE_URL = getBaseUrl()
 
 let authToken: string | null = null
 
@@ -19,7 +30,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     headers['Authorization'] = `Bearer ${activeToken}`
   }
 
-  const response = await fetch(`${BASE_URL}${path}`, {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`
+  const response = await fetch(`${BASE_URL}${cleanPath}`, {
     ...options,
     headers
   })
