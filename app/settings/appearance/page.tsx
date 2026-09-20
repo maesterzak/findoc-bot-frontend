@@ -1,0 +1,4 @@
+import { Monitor, Moon, Sun } from 'lucide-react'
+import { SettingsCard, SettingsSection, Toggle } from '../../../components/settings-section'
+
+export default function AppearancePage() { return <SettingsSection active="/settings/appearance" eyebrow="APPEARANCE SETTINGS" title="Appearance" description="Make FinMaester feel comfortable wherever you use it."><SettingsCard title="Theme" description="Choose how FinMaester looks on this device."><div className="theme-options"><button className="theme-option selected"><Sun size={17}/><span>Light</span></button><button className="theme-option"><Moon size={17}/><span>Dark</span></button><button className="theme-option"><Monitor size={17}/><span>System</span></button></div></SettingsCard><SettingsCard title="Interface"><Toggle label="Show helpful tips" checked /><Toggle label="Reduce motion" /><Toggle label="Compact conversation list" /></SettingsCard></SettingsSection> }
