@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { ArrowLeft, CreditCard, Lock, Palette, UserRound } from 'lucide-react'
+import ProtectedRoute from './ProtectedRoute'
 
 export const settingsItems = [
   { href: '/settings', label: 'Account', icon: UserRound },
@@ -13,13 +14,15 @@ export const settingsItems = [
 
 export function SettingsSection({ active, eyebrow, title, description, children }: { active: string; eyebrow: string; title: string; description: string; children: React.ReactNode }) {
   return (
-    <main className="settings-page">
+    <ProtectedRoute>
+      <main className="settings-page">
       <header className="settings-header"><Link href="/chat" className="back-link"><ArrowLeft size={15} /> Back to chat</Link><Link href="/" className="marketing-brand"><span className="brand-mark">✦</span>finmaester</Link></header>
       <div className="settings-layout">
         <aside className="settings-nav"><h1>Settings</h1>{settingsItems.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={active === href ? 'active' : ''}><Icon size={16} />{label}</Link>)}</aside>
         <section className="settings-content"><div className="settings-intro"><div className="section-eyebrow">{eyebrow}</div><h2>{title}</h2><p>{description}</p></div>{children}</section>
       </div>
     </main>
+    </ProtectedRoute>
   )
 }
 

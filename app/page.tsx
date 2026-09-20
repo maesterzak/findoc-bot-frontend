@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, Menu, Search, Sparkles, X } from 'lucide-react'
+import { ArrowRight, Menu, Search, Sparkles, UserRound, X } from 'lucide-react'
 import { useState } from 'react'
+import { useAuth } from '../context/AuthContext'
 
 const examples = [
   "I'm getting this error during account creation. What could be causing it?",
@@ -20,10 +21,16 @@ const capabilities = [
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [issue, setIssue] = useState('')
+  const { user, logout } = useAuth()
 
   function analyzeIssue() {
     if (!issue.trim()) return
-    window.location.href = `/chat?question=${encodeURIComponent(issue.trim())}`
+    const target = `/chat?question=${encodeURIComponent(issue.trim())}`
+    if (user) {
+      window.location.href = target
+    } else {
+      window.location.href = `/login?redirect=${encodeURIComponent(target)}`
+    }
   }
 
   return (
@@ -31,8 +38,41 @@ export default function Home() {
       <header className="marketing-nav">
         <Link href="/" className="marketing-brand"><span className="brand-mark"><Sparkles size={16} /></span><span>finmaester</span></Link>
         <nav className="marketing-links"><a href="#how">How it works</a><a href="#capabilities">Capabilities</a><Link href="/team">Team</Link><Link href="/contributors">Contributors</Link></nav>
-        <div className="marketing-actions"><Link href="/login" className="button-ghost">Log in</Link><Link href="/chat" className="button-primary">Open assistant <ArrowRight size={16} /></Link><button className="mobile-nav-button" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}>{menuOpen ? <X /> : <Menu />}</button></div>
-        {menuOpen && <div className="mobile-nav"><a href="#how" onClick={() => setMenuOpen(false)}>How it works</a><a href="#capabilities" onClick={() => setMenuOpen(false)}>Capabilities</a><Link href="/team">Team</Link><Link href="/contributors">Contributors</Link><Link href="/login">Log in</Link></div>}
+        <div className="marketing-actions">
+          {user ? (
+            <>
+              <Link href="/settings" className="button-ghost" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <UserRound size={15} /> {user.name || 'Account'}
+              </Link>
+              <Link href="/chat" className="button-primary">Assistant <ArrowRight size={16} /></Link>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="button-ghost">Log in</Link>
+              <Link href="/login?redirect=%2Fchat" className="button-primary">Open assistant <ArrowRight size={16} /></Link>
+            </>
+          )}
+          <button className="mobile-nav-button" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}>{menuOpen ? <X /> : <Menu />}</button>
+        </div>
+        {menuOpen && (
+          <div className="mobile-nav">
+            <a href="#how" onClick={() => setMenuOpen(false)}>How it works</a>
+            <a href="#capabilities" onClick={() => setMenuOpen(false)}>Capabilities</a>
+            <Link href="/team">Team</Link>
+            <Link href="/contributors">Contributors</Link>
+            {user ? (
+              <>
+                <Link href="/settings">Settings</Link>
+                <Link href="/chat">Chat Assistant</Link>
+              </>
+            ) : (
+              <>
+                <Link href="/login">Log in</Link>
+                <Link href="/register">Sign up</Link>
+              </>
+            )}
+          </div>
+        )}
       </header>
 
       <section className="trouble-hero">

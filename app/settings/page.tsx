@@ -3,10 +3,19 @@
 import { useEffect, useState } from 'react'
 import { SettingsCard, SettingsSection } from '../../components/settings-section'
 import { useAuth } from '../../context/AuthContext'
+import ProtectedRoute from '../../components/ProtectedRoute'
 import { profile } from '../../lib/api'
 import { Loader2 } from 'lucide-react'
 
 export default function SettingsPage() {
+  return (
+    <ProtectedRoute>
+      <SettingsContent />
+    </ProtectedRoute>
+  )
+}
+
+function SettingsContent() {
   const { user, refreshUser } = useAuth()
   const [name, setName] = useState('')
   const [saving, setSaving] = useState(false)

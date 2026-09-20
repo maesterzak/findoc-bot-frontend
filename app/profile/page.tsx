@@ -4,9 +4,18 @@ import { useEffect, useState } from 'react'
 import { Link2, UserRound, Loader2 } from 'lucide-react'
 import { SettingsCard, SettingsSection } from '../../components/settings-section'
 import { useAuth } from '../../context/AuthContext'
+import ProtectedRoute from '../../components/ProtectedRoute'
 import { profile } from '../../lib/api'
 
 export default function ProfilePage() {
+  return (
+    <ProtectedRoute>
+      <ProfileContent />
+    </ProtectedRoute>
+  )
+}
+
+function ProfileContent() {
   const { user, refreshUser } = useAuth()
   const [name, setName] = useState('')
   const [bio, setBio] = useState('')

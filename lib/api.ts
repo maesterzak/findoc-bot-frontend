@@ -37,6 +37,21 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   })
 
   if (!response.ok) {
+    if (response.status === 401 && typeof window !== 'undefined') {
+      localStorage.removeItem('findoc_token')
+      localStorage.removeItem('findoc_user')
+      authToken = null
+      const pathname = window.location.pathname
+      if (
+        !pathname.startsWith('/login') &&
+        !pathname.startsWith('/register') &&
+        pathname !== '/'
+      ) {
+        const fullPath = window.location.pathname + window.location.search
+        window.location.href = `/login?redirect=${encodeURIComponent(fullPath)}`
+      }
+    }
+
     let errorMessage = 'Request failed'
     try {
       const errorData = await response.json()

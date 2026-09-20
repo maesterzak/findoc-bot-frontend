@@ -1,19 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { BriefcaseBusiness, Sparkles, Loader2 } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { BriefcaseBusiness, Sparkles, Loader2, ArrowLeft } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
-export default function RegisterPage() {
+function RegisterForm() {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { register } = useAuth()
+  const { register, user, loading } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectParam = searchParams.get('redirect') || '/chat'
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace(redirectParam)
+    }
+  }, [user, loading, router, redirectParam])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,7 +38,7 @@ export default function RegisterPage() {
         password: password.trim(),
         full_name: fullName.trim()
       })
-      router.push('/chat')
+      router.replace(redirectParam)
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.')
     } finally {
@@ -84,8 +92,21 @@ export default function RegisterPage() {
             <BriefcaseBusiness size={16}/> Continue with LinkedIn
           </button>
         </form>
-        <p className="auth-footer">Already have an account? <Link href="/login">Log in</Link></p>
+        <p className="auth-footer">Already have an account? <Link href={`/login${redirectParam !== '/chat' ? `?redirect=${encodeURIComponent(redirectParam)}` : ''}`}>Log in</Link></p>
       </div>
+      <Link href="/" className="auth-back"><ArrowLeft size={15}/> Back to home</Link>
     </main>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: '#090d16', color: '#fff' }}>
+        <Loader2 size={24} className="animate-spin" />
+      </div>
+    }>
+      <RegisterForm />
+    </Suspense>
   )
 }

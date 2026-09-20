@@ -1,18 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, BriefcaseBusiness, Sparkles, Loader2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { login } = useAuth()
+  const { login, user, loading } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectParam = searchParams.get('redirect') || '/chat'
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace(redirectParam)
+    }
+  }, [user, loading, router, redirectParam])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,7 +36,7 @@ export default function LoginPage() {
         email: email.trim(),
         password: password.trim()
       })
-      router.push('/chat')
+      router.replace(redirectParam)
     } catch (err: any) {
       setError(err.message || 'Invalid email or password.')
     } finally {
@@ -78,9 +86,21 @@ export default function LoginPage() {
             <BriefcaseBusiness size={16}/> Continue with LinkedIn
           </button>
         </form>
-        <p className="auth-footer">New to FinMaester? <Link href="/register">Create an account</Link></p>
+        <p className="auth-footer">New to FinMaester? <Link href={`/register${redirectParam !== '/chat' ? `?redirect=${encodeURIComponent(redirectParam)}` : ''}`}>Create an account</Link></p>
       </div>
       <Link href="/" className="auth-back"><ArrowLeft size={15}/> Back to home</Link>
     </main>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: '#090d16', color: '#fff' }}>
+        <Loader2 size={24} className="animate-spin" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }

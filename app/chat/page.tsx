@@ -7,6 +7,7 @@ import { ArrowUp, Loader2, Menu, Plus, Search, Sparkles, UserRound, Trash2, Penc
 import { questions } from '../../data/findoc'
 import { chat } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
+import ProtectedRoute from '../../components/ProtectedRoute'
 import ReactMarkdown from 'react-markdown'
 
 interface Message {
@@ -47,7 +48,7 @@ function ChatContent() {
 
   // Load conversations list
   useEffect(() => {
-    if (authLoading) return
+    if (authLoading || !user) return
 
     chat.getAll()
       .then((data: any) => {
@@ -61,7 +62,7 @@ function ChatContent() {
         console.error('Failed to load conversations:', err)
       })
       .finally(() => setLoadingHistory(false))
-  }, [authLoading])
+  }, [authLoading, user])
 
   const startNewChatWithPrompt = async (promptText: string) => {
     if (isBusy) return
@@ -500,7 +501,9 @@ export default function ChatPage() {
         <Loader2 size={24} className="animate-spin" />
       </div>
     }>
-      <ChatContent />
+      <ProtectedRoute>
+        <ChatContent />
+      </ProtectedRoute>
     </Suspense>
   )
 }
